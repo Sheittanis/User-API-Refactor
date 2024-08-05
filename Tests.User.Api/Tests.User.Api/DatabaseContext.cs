@@ -10,6 +10,6 @@ namespace Tests.User.Api
             optionsBuilder.UseInMemoryDatabase("Tests.User.Api");
         }
 
-        public DbSet<Models.User> Users { get; set; }
+        public DbSet<Models.UserModel> Users { get; set; }
     }
 }

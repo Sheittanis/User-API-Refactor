@@ -5,34 +5,38 @@ namespace Tests.User.Api.Test
 {
     public class UserControllerTests
     {
+        private readonly Models.UserModel UserForTests = new()
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Age = 20
+        };
+
         [Fact]
         public async Task Should_Return_User_When_Valid_Id_Passed()
         {
-            DatabaseContext database = new DatabaseContext();
-            Models.User user = new Models.User
-            {
-                FirstName = "Test",
-                LastName = "User",
-                Age = "20"
-            };
-            database.Users.Add(user);
-            database.SaveChanges();
+            using var database = new DatabaseContext();
+            UserController controller = new(database);
 
-            UserController controller = new UserController();
-            IActionResult result = controller.Get(user.Id);
-            OkObjectResult ok = result as OkObjectResult;           
+            database.Users.Add(UserForTests);
+            await database.SaveChangesAsync();
+
+            IActionResult result = await controller.Get(UserForTests.Id);
+
+            OkObjectResult? ok = result as OkObjectResult;
 
             Assert.NotNull(ok);
-            Assert.Equal(200, ok.StatusCode);            
+            Assert.Equal(200, ok.StatusCode);
         }
 
         [Fact]
         public async Task Should_Return_Valid_When_User_Created()
         {
-            UserController controller = new UserController();
-            IActionResult result = controller.Create("Test", "User", "20");
+            using var database = new DatabaseContext();
+            UserController controller = new(database);
+            IActionResult result = await controller.CreateUser("Test", "User", 20);
 
-            OkResult ok = result as OkResult;
+            OkObjectResult? ok = result as OkObjectResult;
 
             Assert.NotNull(ok);
             Assert.Equal(200, ok.StatusCode);
@@ -41,20 +45,14 @@ namespace Tests.User.Api.Test
         [Fact]
         public async Task Should_Return_Valid_When_User_Updated()
         {
-            DatabaseContext database = new DatabaseContext();
-            Models.User user = new Models.User
-            {
-                FirstName = "Test",
-                LastName = "User",
-                Age = "20"
-            };
-            database.Users.Add(user);
-            database.SaveChanges();
+            using var database = new DatabaseContext();
+            database.Users.Add(UserForTests);
+            await database.SaveChangesAsync();
 
-            UserController controller = new UserController();
-            IActionResult result = controller.Update(user.Id, "Updated", "User", "21");
+            UserController controller = new(database);
+            IActionResult result = await controller.UpdateUser(UserForTests.Id, "Updated", "NewUserName", 21);
 
-            OkResult ok = result as OkResult;
+            OkObjectResult? ok = result as OkObjectResult;
 
             Assert.NotNull(ok);
             Assert.Equal(200, ok.StatusCode);
@@ -63,20 +61,14 @@ namespace Tests.User.Api.Test
         [Fact]
         public async Task Should_Return_Valid_When_User_Removed()
         {
-            DatabaseContext database = new DatabaseContext();
-            Models.User user = new Models.User
-            {
-                FirstName = "Test",
-                LastName = "User",
-                Age = "20"
-            };
-            database.Users.Add(user);
-            database.SaveChanges();
+            using var database = new DatabaseContext();
+            database.Users.Add(UserForTests);
+            await database.SaveChangesAsync();
 
-            UserController controller = new UserController();
-            IActionResult result = controller.Delete(user.Id);
+            UserController controller = new(database);
+            IActionResult result = await controller.Delete(UserForTests.Id);
 
-            OkResult ok = result as OkResult;
+            OkObjectResult? ok = result as OkObjectResult;
 
             Assert.NotNull(ok);
             Assert.Equal(200, ok.StatusCode);
